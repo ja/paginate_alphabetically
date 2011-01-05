@@ -6,6 +6,7 @@ module PaginateAlphabetically
   module ViewHelpers
     def request
       stub(:path => '')
+      stub(:query_string => 'page=2')
     end
   end
 end
@@ -49,5 +50,10 @@ describe 'View helpers' do
   it "allows the css class to be overridden" do
     result_with_class = alphabetically_paginate([Thing.create!(:name => 'a')], :class => 'overridden-class')
     result_with_class.include?('class="overridden-class"').should be_true
+  end
+
+  it "allows the query string to be preserved" do
+    result_with_preserve_query = alphabetically_paginate([Thing.create!(:name => 'a')], :preserve_query => true)
+    result_with_preserve_query.include?('<a href="?letter=A&page=2">').should be_true
   end
 end

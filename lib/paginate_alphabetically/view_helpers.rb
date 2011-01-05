@@ -7,7 +7,7 @@ module PaginateAlphabetically
         return "" if collection.empty?
         available_letters = collection.first.class.pagination_letters
       end
-      content_tag(:ul, safe(alphabetical_links_to(available_letters)),
+      content_tag(:ul, safe(alphabetical_links_to(available_letters, options)),
                   :class => options[:class] || "pagination")
     end
 
@@ -18,15 +18,21 @@ module PaginateAlphabetically
       content
     end
 
-    def alphabetical_links_to(available_letters)
+    def alphabetical_links_to(available_letters, options = {})
       ('A'..'Z').map do |letter|
-        content_tag(:li, paginated_letter(available_letters, letter))
+        content_tag(:li, paginated_letter(available_letters, letter, options))
       end.join(" ")
     end
 
-    def paginated_letter(available_letters, letter)
+    def paginated_letter(available_letters, letter, options = {})
       if available_letters.include?(letter)
-        link_to(letter, "#{request.path}?letter=#{letter}")
+        url = "#{request.path}?letter=#{letter}"
+
+        if options[:preserve_query]
+          url << '&' + request.query_string.split('&').reject { |elem| elem =~ /^letter=/ }.join('&')
+        end
+
+        link_to(letter, url)
       else
         letter
       end
